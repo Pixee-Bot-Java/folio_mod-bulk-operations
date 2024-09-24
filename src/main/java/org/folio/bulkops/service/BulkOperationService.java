@@ -1,5 +1,6 @@
 package org.folio.bulkops.service;
 
+import io.github.pixee.security.Filenames;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -160,7 +161,7 @@ public class BulkOperationService {
         .startTime(LocalDateTime.now())
         .build());
       try {
-        var linkToTriggeringFile = remoteFileSystemClient.put(multipartFile.getInputStream(), operation.getId() + "/" + multipartFile.getOriginalFilename());
+        var linkToTriggeringFile = remoteFileSystemClient.put(multipartFile.getInputStream(), operation.getId() + "/" + Filenames.toSimpleFileName(multipartFile.getOriginalFilename()));
         operation.setLinkToTriggeringCsvFile(linkToTriggeringFile);
       } catch (Exception e) {
         log.error(ERROR_STARTING_BULK_OPERATION + e);
