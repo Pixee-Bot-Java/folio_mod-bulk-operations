@@ -1,5 +1,7 @@
 package org.folio.bulkops.service;
 
+import io.github.pixee.security.HostValidator;
+import io.github.pixee.security.Urls;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -87,7 +89,7 @@ public class DataExportJobUpdateService {
 
       var errorsUrl = jobUpdate.getFiles().get(1);
       if (StringUtils.isNotEmpty(errorsUrl)) {
-        try (var is = new URL(errorsUrl).openStream()) {
+        try (var is = Urls.create(errorsUrl, Urls.HTTP_PROTOCOLS, HostValidator.DENY_COMMON_INFRASTRUCTURE_TARGETS).openStream()) {
           var linkToMatchingErrorsFile = remoteFileSystemClient.put(is, operation.getId() + "/" + FilenameUtils.getName(errorsUrl.split("\\?")[0]));
           operation.setLinkToMatchedRecordsErrorsCsvFile(linkToMatchingErrorsFile);
         }
@@ -125,18 +127,18 @@ public class DataExportJobUpdateService {
 
   public String downloadAndSaveJsonFile(BulkOperation bulkOperation, Job jobUpdate) throws IOException {
     var jsonUrl = jobUpdate.getFiles().get(2);
-    return remoteFileSystemClient.put(new URL(jsonUrl).openStream(), bulkOperation.getId() + "/json/" + FilenameUtils.getName(jsonUrl.split("\\?")[0]));
+    return remoteFileSystemClient.put(Urls.create(jsonUrl, Urls.HTTP_PROTOCOLS, HostValidator.DENY_COMMON_INFRASTRUCTURE_TARGETS).openStream(), bulkOperation.getId() + "/json/" + FilenameUtils.getName(jsonUrl.split("\\?")[0]));
   }
 
   public String downloadAndSaveCsvFile(BulkOperation bulkOperation, Job jobUpdate) throws IOException {
     var csvUrl = jobUpdate.getFiles().get(0);
-    return remoteFileSystemClient.put(new URL(csvUrl).openStream(), bulkOperation.getId() + "/" + FilenameUtils.getName(csvUrl.split("\\?")[0]));
+    return remoteFileSystemClient.put(Urls.create(csvUrl, Urls.HTTP_PROTOCOLS, HostValidator.DENY_COMMON_INFRASTRUCTURE_TARGETS).openStream(), bulkOperation.getId() + "/" + FilenameUtils.getName(csvUrl.split("\\?")[0]));
   }
 
   public String downloadAndSaveMarcFile(BulkOperation bulkOperation, Job jobUpdate) throws IOException {
     var marcUrl = jobUpdate.getFiles().get(3);
     return isEmpty(marcUrl) ?
       null :
-      remoteFileSystemClient.put(new URL(marcUrl).openStream(), bulkOperation.getId() + "/" + FilenameUtils.getName(marcUrl.split("\\?")[0]));
+      remoteFileSystemClient.put(Urls.create(marcUrl, Urls.HTTP_PROTOCOLS, HostValidator.DENY_COMMON_INFRASTRUCTURE_TARGETS).openStream(), bulkOperation.getId() + "/" + FilenameUtils.getName(marcUrl.split("\\?")[0]));
   }
 }
